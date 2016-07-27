@@ -1,6 +1,13 @@
-#Three Channel WiFi Relay/Thermostat Board
+## Adaptation of 3 channel code to work with [new 1 channel relay module](https://guide.openenergymonitor.org/integrations/mqtt-relay/) (Relay 2 and Relay 3 code stripped out)
 
-The Three Channel WiFi Relay/Thermostat Board is a WiFi connected multi-purpose relay board based on the [ESP8266 SoC].
+Adapted by @trystanlea
+OpenEnergyMonitor.org
+
+***
+
+#One Channel WiFi Relay/Thermostat Board
+
+The One Channel WiFi Relay/Thermostat Board is a WiFi connected multi-purpose relay board based on the [ESP8266 SoC].
 
 **NOTE**: The board connects to and controls high voltage, knowledge and care is required to handle it
 
@@ -8,7 +15,6 @@ The Three Channel WiFi Relay/Thermostat Board is a WiFi connected multi-purpose 
 ###Highlights
 
 - Option for on-board power supply
-- Up to three high quality [10A relays]
 - Powered by the WiFi [ESP8266 SoC] module
 - HTTP API to control the relays
 - [MQTT] support
