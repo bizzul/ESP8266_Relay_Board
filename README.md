@@ -1,4 +1,4 @@
-## Adaptation of 3 channel code to work with [new 1 channel relay module](https://guide.openenergymonitor.org/integrations/mqtt-relay/) (Relay 2 and Relay 3 code stripped out)
+## Adaptation of [3 channel code](https://github.com/mharizanov/ESP8266_Relay_Board) to work with [new 1 channel relay module](https://guide.openenergymonitor.org/integrations/mqtt-relay/) (Relay 2 and Relay 3 code stripped out)
 
 Adapted by @trystanlea
 OpenEnergyMonitor.org
