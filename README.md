@@ -31,6 +31,24 @@ The One Channel WiFi Relay/Thermostat Board is a WiFi connected multi-purpose re
 
 See more at the [Three Channel WiFi Relay/Thermostat Board WiKi]
 
+## Using serial input for an external temperature sensor
+
+Details thanks to Felix Paliuc:
+
+- First setup the "serial" as the input for the sensor.
+
+The temperature value must be sent in a particular way: 
+
+- First you have to send an "\n" which gets interpreted as a command.
+
+- After that, you have to send the temperature value like this: serialremotetemp=
+
+- The value of the temperature must be between -3000 and 12000 which gets divided by 100 later.
+
+- Practically, I hooked a moteino to the Rx of the ESP8266 and configured the sketch to send temperature with a line like this:
+
+    Serial.print("\nserialremotetemp=1500");
+
 #Author
 [Martin Harizanov]
 
