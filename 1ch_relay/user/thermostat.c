@@ -13,6 +13,9 @@
 #include "ds18b20.h"
 #include "stdout.h"
 
+
+int MQTTreading;
+
 static int ICACHE_FLASH_ATTR wd(int year, int month, int day) {
   size_t JND =                                                     \
           day                                                      \
@@ -32,20 +35,20 @@ void ICACHE_FLASH_ATTR thermostat(int current_t, int setpoint)
 		os_printf("Current reading (%d) is less than the setpoint.\n",current_t);
 
 		if(sysCfg.thermostat1opmode==THERMOSTAT_HEATING)
-			currGPIO12State=1;
+			currGPIO5State=1;
 		else
-			currGPIO12State=0;
+			currGPIO5State=0;
 			
-		ioGPIO(currGPIO12State,12);
+		ioGPIO(currGPIO5State,RELAY_GPIO);
 	} else if(current_t > setpoint + sysCfg.thermostat1hysteresishigh ) {
 		os_printf("Current reading (%d) is more than the setpoint.\n",current_t);
 
 		if(sysCfg.thermostat1opmode==THERMOSTAT_HEATING)
-			currGPIO12State=0;
+			currGPIO5State=0;
 		else
-			currGPIO12State=1;
+			currGPIO5State=1;
 
-		ioGPIO(currGPIO12State,12);
+		ioGPIO(currGPIO5State,RELAY_GPIO);
 	}
 }
 
@@ -100,6 +103,7 @@ static  void ICACHE_FLASH_ATTR pollThermostatCb(void * arg)
 		
 		if(sysCfg.thermostat1_input==3) { //MQTT input to thermostat
 		// not yet implemented
+			Treading=(long)(MQTTreading);
 		}
 		
 		if(sysCfg.thermostat1_input==4) { //Serial input to thermostat

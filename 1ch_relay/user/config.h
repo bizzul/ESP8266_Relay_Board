@@ -39,6 +39,7 @@
 #define THERMOSTAT_HEATING 0
 #define THERMOSTAT_COOLING 1
 
+
 typedef struct {
  uint16_t start;
  uint16_t end;
@@ -96,6 +97,7 @@ uint8_t mqtt_user[32];
 uint8_t mqtt_pass[64];
 uint32_t mqtt_use_ssl;
 uint8_t mqtt_relay_subs_topic[64];
+uint8_t mqtt_temp_subs_topic[64];
 uint8_t mqtt_dht22_temp_pub_topic[64];
 uint8_t mqtt_dht22_humi_pub_topic[64];
 uint8_t mqtt_ds18b20_temp_pub_topic[64];

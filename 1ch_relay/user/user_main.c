@@ -38,6 +38,8 @@
 
 MQTT_Client mqttClient;
 
+
+
 //Function that tells the authentication system what users/passwords live on the system.
 //This is disabled in the default build; if you want to try it, enable the authBasic line in
 //the builtInUrls below.
@@ -145,7 +147,11 @@ void ICACHE_FLASH_ATTR mqttConnectedCb(uint32_t *args)
 {
 	MQTT_Client* client = (MQTT_Client*)args;
 	os_printf("MQTT: Connected\r\n");
-	MQTT_Subscribe(client, (char *)sysCfg.mqtt_relay_subs_topic,0);
+
+	MQTT_Subscribe(client, (char *)sysCfg.mqtt_relay_subs_topic,0); // MQTT RELAY TOPIC
+
+	MQTT_Subscribe(client, (char *)sysCfg.mqtt_temp_subs_topic,0); // MQTT INPUT TEMP TOPIC
+
 }
 
 void ICACHE_FLASH_ATTR mqttDisconnectedCb(uint32_t *args)
@@ -166,23 +172,35 @@ void ICACHE_FLASH_ATTR mqttDataCb(uint32_t *args, const char* topic, uint32_t to
 
 	char relayNum=strTopic[topic_len-1];
 	char strSubsTopic[strlen((char *)sysCfg.mqtt_relay_subs_topic)];
+
 	os_strcpy(strSubsTopic,(char *)sysCfg.mqtt_relay_subs_topic);
 	strSubsTopic[(strlen((char *)sysCfg.mqtt_relay_subs_topic)-1)]=relayNum;
 
+
+
+    char mqtt_temp_topic[strlen((char *)sysCfg.mqtt_temp_subs_topic)];
+
+    os_strcpy(mqtt_temp_topic,(char *)sysCfg.mqtt_temp_subs_topic);
+
+
 	os_printf("MQTT strSubsTopic: %s, strTopic: %s \r\n", strSubsTopic, strTopic);
+
 
 	if (os_strcmp(strSubsTopic,strTopic) == 0 ) {
 		os_printf("Relay %d is now: %s \r\n", relayNum-'0', strData);
 		
 		if(relayNum=='1') {
-			currGPIO12State=atoi(strData);
-			ioGPIO(currGPIO12State,12);
+			currGPIO5State=atoi(strData);
+			ioGPIO(currGPIO5State,RELAY_GPIO);
 		}
 		
 		if( sysCfg.relay_latching_enable) {		
-			sysCfg.relay_1_state=currGPIO12State;
+			sysCfg.relay_1_state=currGPIO5State;
 			CFG_Save();
 		}	
+	}else if (os_strcmp(mqtt_temp_topic,strTopic) == 0 ) {
+			MQTTreading=atoi(strData)*100;
+			os_printf("MQTT temp: %d \r\n", MQTTreading);
 	}
 	os_printf("MQTT topic: %s, data: %s \r\n", strTopic, strData);
 }
@@ -197,33 +215,33 @@ void ICACHE_FLASH_ATTR mqttPublishedCb(uint32_t *args)
 //Main routine
 void ICACHE_FLASH_ATTR user_init(void) {
 
-	stdoutInit();	
+	stdoutInit();
 	os_delay_us(100000);
 	CFG_Load();
 	ioInit();
-	
+
 	WIFI_Connect(wifiConnectCb);
-	
+
 	httpdInit(builtInUrls, sysCfg.httpd_port);
-	
+
 	if(sysCfg.ntp_enable==1) {
 		sntp_init(sysCfg.ntp_tz);	//timezone
 	}
-	
+
 	if(sysCfg.mqtt_enable==1) {
 		MQTT_InitConnection(&mqttClient, (uint8_t *)sysCfg.mqtt_host, sysCfg.mqtt_port, sysCfg.mqtt_use_ssl );
 		MQTT_InitClient(&mqttClient, (uint8_t *)sysCfg.mqtt_devid, (uint8_t *)sysCfg.mqtt_user, (uint8_t *)sysCfg.mqtt_pass, sysCfg.mqtt_keepalive,1);
 		MQTT_OnConnected(&mqttClient, mqttConnectedCb);
 		MQTT_OnDisconnected(&mqttClient, mqttDisconnectedCb);
-		MQTT_OnPublished(&mqttClient, mqttPublishedCb);		
+		MQTT_OnPublished(&mqttClient, mqttPublishedCb);
 		MQTT_OnData(&mqttClient, mqttDataCb);
-		
+
 	}
-	
-	if(sysCfg.sensor_dht22_enable) 
+
+	if(sysCfg.sensor_dht22_enable)
 		DHTInit(SENSOR_DHT22, 30000);
-		
-	if(sysCfg.sensor_ds18b20_enable) 
+
+	if(sysCfg.sensor_ds18b20_enable)
 		ds_init(30000);
 
 	broadcastd_init();
@@ -245,19 +263,19 @@ void ICACHE_FLASH_ATTR user_init(void) {
 	netbios_name[sizeof(netbios_name)-1]='\0';
 	netbios_init();
 */
-		
-	os_printf("\nRelay Board Ready\n");	
+
+	os_printf("\nRelay Board Ready\n");
 	os_printf("Free heap size:%d\n",system_get_free_heap_size());
 
-	
-#ifdef CGIPWM_H	
+
+#ifdef CGIPWM_H
 	//Mind the PWM pin!! defined in pwm.h
 	duty=0;
 	pwm_init( 50, &duty);
 	pwm_set_duty(duty, 0);
     pwm_start();
 #endif
-	
+
 	//OLEDInit();
 	
 }

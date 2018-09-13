@@ -9,16 +9,16 @@
 #define CFG_HOLDER	0x00FF55A2
 #define CFG_LOCATION	0x3C
 
-#define FWVER "0.7/April 11th 2015"
+#define FWVER "0.8/ sept 2018"
 
 /*DEFAULT CONFIGURATIONS*/
 
 #define STA_MODE     "static"
-#define STA_IP       "192.168.1.17"
+#define STA_IP       "192.168.0.17"
 #define STA_MASK     "255.255.255.0"
-#define STA_GW       "192.168.1.1"
-#define STA_SSID     "dd-wrt" 
-#define STA_PASS     "a1b2c3d4e5"
+#define STA_GW       "192.168.0.254"
+#define STA_SSID     "cotcotcot" 
+#define STA_PASS     ""
 #define STA_TYPE AUTH_WPA2_PSK
 
 #define AP_IP        "192.168.4.1"
@@ -40,30 +40,30 @@
 #define NTP_ENABLE    1
 #define NTP_TZ  	  2
 
-#define MQTT_ENABLE			0
-#define MQTT_HOST			"192.168.1.6" //host name or IP "192.168.11.1"
-#define MQTT_PORT			1883
+#define MQTT_ENABLE			1
+#define MQTT_HOST			"" //host name or IP "192.168.11.1"
+#define MQTT_PORT			8883
 #define MQTT_KEEPALIVE		120	 /*seconds*/
 #define MQTT_DEVID			"ESP_%08X"
 #define MQTT_USER			""
 #define MQTT_PASS			""
 #define MQTT_USE_SSL		0
-#define MQTT_RELAY_SUBS_TOPIC 		"esp_%08X/out/relay/#"
-#define MQTT_DHT22_TEMP_PUB_TOPIC  	"esp_%08X/in/dht22/temperature" 
-#define MQTT_DHT22_HUMI_PUB_TOPIC   "esp_%08X/in/dht22/humidity" 		
-#define MQTT_DS18B20_TEMP_PUB_TOPIC "esp_%08X/in/ds18b20/temperature"
+#define MQTT_RELAY_SUBS_TOPIC 		"heating/control/relay/#"
+#define MQTT_DS18B20_TEMP_PUB_TOPIC "heating/status/ds18b20/1"
+#define MQTT_TEMP_SUBS_TOPIC 		"emon/emonth6/temperature"
 
-#define SENSOR_DS18B20_ENABLE     0
+#define SENSOR_DS18B20_ENABLE     1
 #define SENSOR_DHT22_ENABLE       0
 
 #define RELAY_LATCHING_ENABLE       0
 #define RELAY1NAME       "Relay 1"
-#define RELAY2NAME       "Relay 2"
-#define RELAY3NAME       "Relay 3"
 	
 #define MQTT_BUF_SIZE		255
 #define MQTT_RECONNECT_TIMEOUT 	5	/*second*/
 #define MQTT_CONNTECT_TIMER 	5 	/**/
+
+#define RELAY_GPIO  5
+
 
 #endif
 
