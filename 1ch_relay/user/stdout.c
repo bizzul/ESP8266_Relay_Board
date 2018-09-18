@@ -99,12 +99,12 @@ uart0_rx_intr_handler(void *para)
 			os_printf("Relay %d is now: %d \r\n", relayNum, relayState);
 		
 			if(relayNum==1) {
-				currGPIO12State=relayState;
-				ioGPIO(currGPIO12State,12);
+				currGPIO5State=relayState;
+				ioGPIO(currGPIO5State,RELAY_GPIO);
 			}
 		
 			if( sysCfg.relay_latching_enable) {		
-				sysCfg.relay_1_state=currGPIO12State;
+				sysCfg.relay_1_state=currGPIO5State;
 				CFG_Save();
 			}	
 			}

@@ -40,8 +40,8 @@ int ICACHE_FLASH_ATTR cgiGPIO(HttpdConnData *connData) {
 
 	len=httpdFindArg(connData->getArgs, "relay1", buff, sizeof(buff));
 	if (len>0) {
-		currGPIO12State=atoi(buff);
-		ioGPIO(currGPIO12State,12);
+		currGPIO5State=atoi(buff);
+		ioGPIO(currGPIO5State,RELAY_GPIO);
 		gotcmd=1;
 		//Manually switching relays means switching the thermostat off
 		if(sysCfg.thermostat1state!=0) {
@@ -51,7 +51,7 @@ int ICACHE_FLASH_ATTR cgiGPIO(HttpdConnData *connData) {
 	
 	if(gotcmd==1) {
 		if( sysCfg.relay_latching_enable) {		
-			sysCfg.relay_1_state=currGPIO12State;
+			sysCfg.relay_1_state=currGPIO5State;
 			CFG_Save();
 		}
 
@@ -64,7 +64,7 @@ int ICACHE_FLASH_ATTR cgiGPIO(HttpdConnData *connData) {
 		httpdHeader(connData, "Access-Control-Allow-Origin", "*");
 		httpdEndHeaders(connData);
 
-		len=os_sprintf(buff, "{\"relay1\": %d\n,\"relay1name\":\"%s\"}\n",  currGPIO12State,(char *)sysCfg.relay1name );
+		len=os_sprintf(buff, "{\"relay1\": %d\n,\"relay1name\":\"%s\"}\n",  currGPIO5State,(char *)sysCfg.relay1name );
 		httpdSend(connData, buff, -1);
 		return HTTPD_CGI_DONE;	
 	}
@@ -85,7 +85,7 @@ void ICACHE_FLASH_ATTR tplGPIO(HttpdConnData *connData, char *token, void **arg)
 	}
 
 	if (os_strcmp(token, "relay1")==0) {
-		if (currGPIO12State) {
+		if (currGPIO5State) {
 			os_strcpy(buff, "on");
 		} else {
 			os_strcpy(buff, "off");
@@ -218,7 +218,7 @@ void ICACHE_FLASH_ATTR tplDS18b20 (HttpdConnData *connData, char *token, void **
 			if (SignBit) // negative
 				Whole*=-1;
 		
-			os_sprintf( buff+strlen(buff) ,"Sensor %d (%02x %02x %02x %02x %02x %02x %02x %02x) reading is %d.%d°C<br />", i+1, addr[i][0], addr[i][1], addr[i][2], addr[i][3], addr[i][4], addr[i][5], addr[i][6], addr[i][7],
+			os_sprintf( buff+strlen(buff) ,"Sensor %d (%02x %02x %02x %02x %02x %02x %02x %02x) reading is %d.%dÂ°C<br />", i+1, addr[i][0], addr[i][1], addr[i][2], addr[i][3], addr[i][4], addr[i][5], addr[i][6], addr[i][7],
 				Whole, Fract < 10 ? 0 : Fract);
 			} else {
 			os_sprintf( buff+strlen(buff) ,"Sensor %d (%02x %02x %02x %02x %02x %02x %02x %02x) reading is invalid<br />", i+1, addr[i][0], addr[i][1], addr[i][2], addr[i][3], addr[i][4], addr[i][5], addr[i][6], addr[i][7]);
@@ -267,7 +267,7 @@ int ICACHE_FLASH_ATTR cgiState(HttpdConnData *connData) {
 	dht_temp_str(temp);
 	dht_humi_str(humi);
 	
-	os_sprintf( buff, "{ \n\"relay1\": \"%d\"\n,\n  \n\"DHT22temperature\": \"%s\"\n , \n\"DHT22humidity\": \"%s\"\n,\"DS18B20temperature\": \"%s\"\n}\n",  currGPIO12State, temp,humi,tmp );
+	os_sprintf( buff, "{ \n\"relay1\": \"%d\"\n,\n  \n\"DHT22temperature\": \"%s\"\n , \n\"DHT22humidity\": \"%s\"\n,\"DS18B20temperature\": \"%s\"\n}\n",  currGPIO5State, temp,humi,tmp );
 
 	httpdSend(connData, buff, -1);
 	return HTTPD_CGI_DONE;
@@ -348,6 +348,10 @@ void ICACHE_FLASH_ATTR tplMQTT(HttpdConnData *connData, char *token, void **arg)
 			os_strcpy(buff, (char *)sysCfg.mqtt_relay_subs_topic);
 	}
 
+	if (os_strcmp(token, "mqtt-temp-subs-topic")==0) {
+			os_strcpy(buff, (char *)sysCfg.mqtt_temp_subs_topic);
+	}
+
 	if (os_strcmp(token, "mqtt-dht22-temp-pub-topic")==0) {
 			os_strcpy(buff, (char *)sysCfg.mqtt_dht22_temp_pub_topic);
 	}
@@ -413,7 +417,16 @@ int ICACHE_FLASH_ATTR cgiMQTT(HttpdConnData *connData) {
 	if (len>0) {
 		os_sprintf((char *)sysCfg.mqtt_relay_subs_topic,buff);
 	}
-	
+
+		len=httpdFindArg(connData->post->buff, "mqtt-temp-subs-topic", buff, sizeof(buff));
+	if (len>0) {
+		os_sprintf((char *)sysCfg.mqtt_temp_subs_topic,buff);
+	}
+
+
+
+
+
 		len=httpdFindArg(connData->post->buff, "mqtt-dht22-temp-pub-topic", buff, sizeof(buff));
 	if (len>0) {
 		os_sprintf((char *)sysCfg.mqtt_dht22_temp_pub_topic,buff);

@@ -26,6 +26,7 @@ Some random cgi routines.
 #include "time_utils.h"
 #include "config.h"
 #include "stdout.h"
+#include "thermostat.h"
 
 #include "jsmn.h"
 
@@ -80,6 +81,9 @@ int ICACHE_FLASH_ATTR cgiThermostat(HttpdConnData *connData) {
 			else if (sysCfg.sensor_ds18b20_enable && sysCfg.thermostat1_input == 0) { 			
 				ds_str(temp,0);
 			}
+			else if (sysCfg.thermostat1_input == 3) { 		//MQTT
+				os_sprintf(temp,"%d.%d",(int)MQTTreading/100,MQTTreading-((int)MQTTreading/100)*100);
+			}
 
 			else if (sysCfg.thermostat1_input == 4) { 		//Serial
 				os_sprintf(temp,"%d.%d",(int)serialTreading/100,serialTreading-((int)serialTreading/100)*100);
@@ -91,7 +95,7 @@ int ICACHE_FLASH_ATTR cgiThermostat(HttpdConnData *connData) {
 
 	
 			os_sprintf(buff, "{\"temperature\": \"%s\"\n,\"humidity\": \"%s\"\n,\"humidistat\": %d\n,\"relay1state\": %d\n,\"relay1name\":\"%s\",\n\"opmode\":%d\n,\"state\":%d,\n\"manualsetpoint\": %d\n,\"mode\":%d }\n",
-				temp, humi, (int)sysCfg.thermostat1_input==2?1:0, currGPIO12State,(char *)sysCfg.relay1name,(int)sysCfg.thermostat1opmode, (int)sysCfg.thermostat1state, (int)sysCfg.thermostat1manualsetpoint,(int)sysCfg.thermostat1mode);
+				temp, humi, (int)sysCfg.thermostat1_input==2?1:0, currGPIO5State,(char *)sysCfg.relay1name,(int)sysCfg.thermostat1opmode, (int)sysCfg.thermostat1state, (int)sysCfg.thermostat1manualsetpoint,(int)sysCfg.thermostat1mode);
 
 
 		}
@@ -130,7 +134,7 @@ int ICACHE_FLASH_ATTR cgiThermostat(HttpdConnData *connData) {
 			if(connData->post->len>0) {
 				os_printf("N/A\n");
 			} else {
-				os_sprintf(buff, "%d", currGPIO12State);
+				os_sprintf(buff, "%d", currGPIO5State);
 			}
 		}
 
@@ -139,8 +143,8 @@ int ICACHE_FLASH_ATTR cgiThermostat(HttpdConnData *connData) {
 				sysCfg.thermostat1state=(int)atoi(connData->post->buff);
 				
 				//Switching off thermostat means force off for relay 1
-				currGPIO12State=0;
-				ioGPIO(currGPIO12State,12);
+				currGPIO5State=0;
+				ioGPIO(currGPIO5State,RELAY_GPIO);
 				
 				CFG_Save();
 				os_printf("Handle thermostat state (%d) saved\n",(int)sysCfg.thermostat1state);
